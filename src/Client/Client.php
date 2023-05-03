@@ -36,7 +36,6 @@ class Client
             ]
         );
 
-
         $data = $this->serializer->deserialize(
             $response->getBody()->getContents(),
             'array<string,' . GetTranslationsApplicationResult::class . '>',

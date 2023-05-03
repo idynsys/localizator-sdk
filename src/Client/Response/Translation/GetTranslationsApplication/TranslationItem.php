@@ -4,7 +4,7 @@ namespace Ids\Localizator\Client\Response\Translation\GetTranslationsApplication
 
 use JMS\Serializer\Annotation as Serializer;
 
-class GetTranslationsApplicationUIItem
+class TranslationItem
 {
     protected int $productId;
 
