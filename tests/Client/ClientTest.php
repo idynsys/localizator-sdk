@@ -105,17 +105,18 @@ class ClientTest extends TestCase
 
         $result = $this->client->getGetTranslationsApplication($request);
 
-        // $this->assertInstanceOf(GetTranslationsApplicationResult::class, $result);
-        $this->assertEquals(1, $result->getProductId());
-        $this->assertEquals(
-            [
-                'eng' =>
-                    [
-                        'parent_item_localization_code' => ['item1' => 'trItem1'],
-                    ],
-            ],
-            $result->getTranslations()
-        );
+        foreach ($result->getUIitems() as $item) {
+            $this->assertEquals(1, $item->getProductId());
+            $this->assertEquals(
+                [
+                    'eng' =>
+                        [
+                            'parent_item_localization_code' => ['item1' => 'trItem1'],
+                        ],
+                ],
+                $item->getTranslations()
+            );
+        }
     }
 
     /**
