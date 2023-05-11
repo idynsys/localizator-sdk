@@ -198,7 +198,7 @@ class Translator
      */
     private function warmCache(): void
     {
-        $result = $this->client->getGetTranslationsApplication(
+        $result = $this->client->getTranslationsApplication(
             new GetTranslationsApplicationRequest($this->applicationId)
         );
 

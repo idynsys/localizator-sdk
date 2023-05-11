@@ -103,7 +103,7 @@ class ClientTest extends TestCase
             ]
         );
 
-        $result = $this->client->getGetTranslationsApplication($request);
+        $result = $this->client->getTranslationsApplication($request);
 
         foreach ($result->getUIitems() as $item) {
             $this->assertEquals(1, $item->getProductId());

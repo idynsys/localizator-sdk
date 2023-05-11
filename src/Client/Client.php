@@ -25,7 +25,7 @@ class Client
     /**
      * @throws GuzzleException
      */
-    public function getGetTranslationsApplication(
+    public function getTranslationsApplication(
         GetTranslationsApplicationRequest $request
     ): GetTranslationsApplicationResult {
 
