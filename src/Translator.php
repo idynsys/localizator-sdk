@@ -7,8 +7,10 @@ use GuzzleHttp\Exception\GuzzleException;
 use Ids\Localizator\Client\Client;
 use Ids\Localizator\Client\Request\Catalogs\PostCatalogsItems\PostCatalogsItemsRequest;
 use Ids\Localizator\Client\Request\Catalogs\PostCatalogsItems\Translation;
-use Ids\Localizator\Client\Request\Translations\GetTranslationsApplication\GetTranslationsApplicationRequest;
-use Ids\Localizator\Exception\CantDetermineProductIdException;
+use Ids\Localizator\Client\Request\StaticData\StaticTranslationRequest;
+use Ids\Localizator\DTO\StaticTranslationData;
+use Ids\Localizator\DTO\StaticTranslationDataCollection;
+use Ids\Localizator\DTO\TranslationData;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 
@@ -22,24 +24,22 @@ class Translator
 
     private Client $client;
     private CacheItemPoolInterface $itemPool;
-    private int $applicationId;
-    private ?int $defaultProductId;
-    private string $currentLang;
+    private string $applicationSecretKey;
+    private string $applicationName = 'no-app';
+    private ?string $currentLang;
     private ?int $organizationId;
 
     public function __construct(
         Client $client,
         CacheItemPoolInterface $itemPool,
-        int $applicationId,
-        ?string $currentLang = 'rus',
-        ?int $defaultProductId = null,
+        string $applicationSecretKey,
+        ?string $currentLang = null,
         ?int $organizationId = null
     ) {
         $this->client = $client;
         $this->itemPool = $itemPool;
-        $this->applicationId = $applicationId;
+        $this->applicationSecretKey = $applicationSecretKey;
         $this->currentLang = $currentLang;
-        $this->defaultProductId = $defaultProductId;
         $this->organizationId = $organizationId;
     }
 
@@ -47,14 +47,12 @@ class Translator
         string $type,
         string $lang,
         string $categoryName,
-        string $code,
-        int $productId = null
+        string $code
     ): string {
         return sprintf(
-            '%s:%s-%s_%s-%s-%s',
+            '%s:%s-%s_%s-%s',
             $type,
-            $this->applicationId ?: 'no-app',
-            $productId ?? $this->defaultProductId,
+            $this->applicationName,
             strtolower($lang),
             $categoryName,
             $code
@@ -77,15 +75,21 @@ class Translator
         return $this;
     }
 
+    public function getStaticTranslation(StaticTranslationData $translationData)
+    {
+
+    }
+
     /**
+     * @deprecated
+     *
      * @throws InvalidArgumentException
      * @throws GuzzleException
      */
     private function getTranslationByType(
         string $type,
         string $catalogName,
-        string $code,
-        int $productId = null
+        string $code
     ) {
         if ($this->warmCacheIfEmpty && $this->getLatestWarming() === null) {
             $this->warmCache();
@@ -95,8 +99,7 @@ class Translator
             $type,
             $this->currentLang,
             $catalogName,
-            $code,
-            $this->getProductIdForUse($productId)
+            $code
         );
 
         if ($this->itemPool->hasItem($key)) {
@@ -106,25 +109,23 @@ class Translator
         return null;
     }
 
-    public function setDefaultProductId(?int $defaultProductId): Translator
-    {
-        $this->defaultProductId = $defaultProductId;
-        return $this;
-    }
-
-
-
     /**
-     * @throws InvalidArgumentException
+     * @param string|null $languageCode
+     * @return StaticTranslationDataCollection
      * @throws GuzzleException
      */
-    public function translate(string $catalogName, string $code, int $productId = null): ?TranslationString
+    public function importStaticTranslations(?string $languageCode = null): StaticTranslationDataCollection
     {
-        $translation = $this->getTranslationByType(self::PARENT_TYPE_CATALOG, $catalogName, $code, $productId);
-        return $translation ? new TranslationString($translation) : null;
+        $data = $this->client->getStaticTranslations(
+            new StaticTranslationRequest($this->applicationSecretKey, $languageCode)
+        );
+
+        return $data;
     }
 
     /**
+     * @deprecated
+     *
      * @throws GuzzleException
      * @throws InvalidArgumentException
      */
@@ -132,16 +133,6 @@ class Translator
     {
         $translation = $this->getTranslationByType(self::PARENT_TYPE_UI_ITEM, $catalogName, $code, $productId);
         return $translation ? new TranslationString($translation) : null;
-    }
-
-    private function getProductIdForUse(?int $productId): int
-    {
-        $useProductId = $productId ?: $this->defaultProductId;
-        if ($useProductId === null) {
-            throw new CantDetermineProductIdException('Can\'t determine productId for use');
-        }
-
-        return $useProductId;
     }
 
     /**
@@ -153,20 +144,17 @@ class Translator
         string $catalogName,
         string $code,
         string $value,
-        int $productId = null,
         string $type = 'I'
     ): void {
-        $useProductId = $this->getProductIdForUse($productId);
         $postRequest = new PostCatalogsItemsRequest(
-            $this->applicationId,
+            $this->applicationSecretKey,
             $catalogName,
             $code,
             null,
             [
                 new Translation($this->currentLang, $value),
             ],
-            $this->organizationId,
-            $useProductId
+            $this->organizationId
         );
 
         $result = $this->client->postCatalogItems($postRequest);
@@ -176,7 +164,6 @@ class Translator
                 $catalogName,
                 $result->getItemId(),
                 $translation->getTranslation(),
-                $useProductId,
                 $type
             );
         }
@@ -198,32 +185,13 @@ class Translator
      */
     private function warmCache(): void
     {
-        $result = $this->client->getTranslationsApplication(
-            new GetTranslationsApplicationRequest($this->applicationId)
+        $result = $this->client->getStaticTranslations(
+            new StaticTranslationRequest($this->applicationSecretKey)
         );
 
-        foreach ($result->getUIitems() as $UIItem) {
-            $productId = $UIItem->getProductId();
-            foreach ($UIItem->getTranslations() as $langCode => $landTranslation) {
-                foreach ($landTranslation as $catalogName => $catalogTranslation) {
-                    foreach ($catalogTranslation as $code => $translation) {
-                        $this->saveItem($langCode, $catalogName, $code, $translation, $productId, self::PARENT_TYPE_UI_ITEM);
-                    }
-                }
-            }
+        foreach ($result->translations() as $translation) {
+            $this->saveItem($translation);
         }
-
-        foreach ($result->getCatalogs() as $catalogItem) {
-            $productId = $catalogItem->getProductId();
-            foreach ($catalogItem->getTranslations() as $langCode => $landTranslation) {
-                foreach ($landTranslation as $catalogName => $catalogTranslation) {
-                    foreach ($catalogTranslation as $code => $translation) {
-                        $this->saveItem($langCode, $catalogName, $code, $translation, $productId, self::PARENT_TYPE_CATALOG);
-                    }
-                }
-            }
-        }
-
 
         $lastWarmingTimeItem = $this->itemPool->getItem(self::LAST_WARMING_TIME_KEY);
         $lastWarmingTimeItem->set((new \DateTime())->format(DateTimeInterface::ATOM));
@@ -244,22 +212,4 @@ class Translator
         return null;
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
-    private function saveItem(
-        string $lang,
-        string $catalogName,
-        string $code,
-        string $translation,
-        int $productId,
-        string $type
-    ): void {
-        $key = $this->getCacheKey($type, $lang, $catalogName, $code, $productId);
-        $item = $this->itemPool->getItem($key);
-        $item
-            ->set($translation)
-            ->expiresAfter($this->getExpAfter());
-        $this->itemPool->save($item);
-    }
 }

@@ -10,32 +10,27 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class TranslatorFactory
 {
-    private const DEFAULT_LANG = 'rus';
     private Client $client;
     private CacheItemPoolInterface $cache;
-    private int $applicationId;
-    private string $currentLang;
+    private string $applicationSecretKey;
+    private ?string $currentLang;
     private ?string $localizatorUrl;
-    private ?int $defaultProductId = null;
-    private ?int $organizationId;
 
     public function __construct(
-        int $applicationId,
-        int $organizationId = null,
-        ?string $currentLang = 'rus'
+        string $applicationSecretKey,
+        ?string $currentLang = null
     ) {
-        $this->applicationId = $applicationId;
-        $this->organizationId = $organizationId;
+        $this->applicationSecretKey = $applicationSecretKey;
         $this->currentLang = $currentLang;
         $this->configureDefaultCacheAdapter();
     }
 
     public static function create(
-        int $applicationId,
-        string $currentLang,
+        string $applicationSecretKey,
+        ?string $currentLang = null,
         int $organizationId = null
     ): self {
-        return new static($applicationId, $organizationId, $currentLang ?? self::DEFAULT_LANG);
+        return new static($applicationSecretKey, $currentLang, $organizationId);
     }
 
     public function configureDefaultCacheAdapter(): void
@@ -75,16 +70,6 @@ class TranslatorFactory
         return $this;
     }
 
-    /**
-     * @param int|null $defaultProductId
-     * @return TranslatorFactory
-     */
-    public function setDefaultProductId(?int $defaultProductId): TranslatorFactory
-    {
-        $this->defaultProductId = $defaultProductId;
-        return $this;
-    }
-
     public function build(): Translator
     {
         if (!isset($this->client)) {
@@ -98,13 +83,12 @@ class TranslatorFactory
         $translator = new Translator(
             $this->client,
             $this->cache,
-            $this->applicationId,
-            $this->currentLang,
-            $this->defaultProductId,
-            $this->organizationId
+            $this->applicationSecretKey,
+            $this->currentLang
         );
 
         $translator->setWarmCacheIfEmpty(true);
+
         return $translator;
     }
 }
