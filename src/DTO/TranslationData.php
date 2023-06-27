@@ -3,18 +3,19 @@
 namespace Ids\Localizator\DTO;
 
 use Exception;
+use Ids\Localizator\Cache\CacheStorageTypes;
 
 abstract class TranslationData
 {
     protected string $prefix = 'Localizer';
     protected TranslationTypes $type;
 
-    private string $pathSeparator = '|||';
-    public string $languageCode;
-    public array $location;
-    public $translation;
-    private string $languagePath = '';
-    private string $path = '';
+    protected string $pathSeparator = '|||';
+    protected string $languageCode;
+    protected array $location;
+    protected $translation;
+    protected string $languagePath = '';
+    protected string $path = '';
 
     public function __construct(string $languageCode, array $location = [], $translation = '', ?string $prefix = null)
     {
@@ -42,27 +43,28 @@ abstract class TranslationData
     public function getLanguagePath(?string $separator = null, ?array $location = null): string
     {
         if (empty($this->languagePath) || !is_null($separator)) {
+            if (is_null($location)) {
+                $location = $this->location ?: [];
+            }
+
             $this->languagePath = implode(
                 $separator ?: $this->pathSeparator,
-                array_merge([$this->prefix, $this->languageCode, $this->type], is_null($location) ? $this->location : $location)
+                array_merge([$this->prefix, $this->languageCode, $this->type], $location)
             );
         }
 
         return $this->languagePath;
     }
 
-    public function getKey(): string
+    public function getKey(CacheStorageTypes $storageType): string
     {
-        return $this->getLanguagePath();
-    }
+        switch ($storageType->getValue()) {
+            case CacheStorageTypes::TRANSLATIONS_STORAGE_TYPE:
+                return $this->getLanguagePath();
+            case CacheStorageTypes::PARENTS_STORAGE_TYPE:
+                return $this->getLanguagePath(null, [$this->getParentName()]);
+        }
 
-    public function getParentKey(): string
-    {
-        return $this->getLanguagePath(null, [$this->getParentName()]);
-    }
-
-    public function getLanguageKey(): string
-    {
         return $this->getLanguagePath(null, []);
     }
 

@@ -2,28 +2,34 @@
 
 namespace Ids\Localizator\Cache;
 
+use DateInterval;
 use Ids\Localizator\DTO\TranslationData;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class TranslationCacheManager
 {
     private const DEFAULT_EXPIRES_AFTER = '10 years';
 
-    protected TranslationCacheTypes $storeType;
+    protected CacheStorageTypes $storageType;
     protected CacheItemPoolInterface $cache;
 
-    public function __construct(?CacheItemPoolInterface $cacheItemPool = null, ?TranslationCacheTypes $storeType = null)
+    public function __construct(?CacheItemPoolInterface $cacheItemPool = null, ?CacheStorageTypes $storageType = null)
     {
         $this->setCache($cacheItemPool);
 
-        if (!$storeType) {
-            $storeType = TranslationCacheTypes::TRANSLATIONS_STORE_TYPE();
+        if (!$storageType) {
+            $storageType = CacheStorageTypes::TRANSLATIONS_STORAGE_TYPE();
         }
 
-        $this->setStoreType($storeType);
+        $this->setStorageType($storageType);
     }
 
+    /**
+     * @param CacheItemPoolInterface|null $cacheItemPool
+     * @return $this
+     */
     public function setCache(?CacheItemPoolInterface $cacheItemPool = null): TranslationCacheManager
     {
         $this->cache = $cacheItemPool ?: new FilesystemAdapter();
@@ -31,53 +37,62 @@ class TranslationCacheManager
         return $this;
     }
 
-    public function setStoreType(TranslationCacheTypes $storeType): void
+    /**
+     * @param CacheStorageTypes $storageType
+     * @return void
+     */
+    public function setStorageType(CacheStorageTypes $storageType): void
     {
-        $this->storeType = $storeType;
+        $this->storageType = $storageType;
     }
 
+    /**
+     * @return void
+     */
     public function clear(): void
     {
         $this->cache->clear();
     }
 
+    /**
+     * @param TranslationData $translation
+     * @return TranslationData
+     * @throws InvalidArgumentException
+     */
     public function get(TranslationData $translation): TranslationData
     {
-        if ($this->cache->hasItem($translation->getKey())) {
-            $translation->setTranslation($this->cache->getItem($translation->getKey())->get());
+        if ($this->cache->hasItem($translation->getKey($this->storageType))) {
+            $translation->setTranslation($this->cache->getItem($translation->getKey($this->storageType))->get());
         }
 
         return $translation;
     }
 
-    private function getExpAfter(): \DateInterval
+    /**
+     * @return DateInterval
+     */
+    private function getExpirationDate(): DateInterval
     {
-        return \DateInterval::createFromDateString(self::DEFAULT_EXPIRES_AFTER);
+        return DateInterval::createFromDateString(self::DEFAULT_EXPIRES_AFTER);
     }
 
+    /**
+     * @param TranslationData $translation
+     * @return void
+     * @throws InvalidArgumentException
+     */
     public function save(TranslationData $translation): void
     {
-        switch ($this->storeType->getValue()) {
-            case TranslationCacheTypes::PARENTS_STORE_TYPE:
-                $key = $translation->getParentKey();
-                break;
-            case TranslationCacheTypes::LANGUAGE_STORE_TYPE:
-                $key = $translation->getLanguageKey();
-                break;
-            default:
-                $key = $translation->getkey();
-                break;
-        }
-
+        $key = $translation->getKey($this->storageType);
         $item = $this->cache->getItem($key);
 
-        switch ($this->storeType->getValue()) {
-            case TranslationCacheTypes::PARENTS_STORE_TYPE:
+        switch ($this->storageType->getValue()) {
+            case CacheStorageTypes::PARENTS_STORAGE_TYPE:
                 $value = $this->cache->hasItem($key) ? $item->get() : [];
 
                 $value[$translation->getItemName()] = $translation->getTranslation();
                 break;
-            case TranslationCacheTypes::LANGUAGE_STORE_TYPE:
+            case CacheStorageTypes::LANGUAGE_STORAGE_TYPE:
                 $value = $this->cache->hasItem($key) ? $item->get() : [];
 
                 $value[$translation->getParentName()][$translation->getItemName()] = $translation->getTranslation();
@@ -87,7 +102,7 @@ class TranslationCacheManager
                 break;
         }
 
-        $item->set($value)->expiresAfter($this->getExpAfter());
+        $item->set($value)->expiresAfter($this->getExpirationDate());
 
         $this->cache->save($item);
     }

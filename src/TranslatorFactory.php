@@ -2,49 +2,41 @@
 
 namespace Ids\Localizator;
 
+use Ids\Localizator\Cache\TranslationCacheManager;
 use Ids\Localizator\Client\Client;
 use Ids\Localizator\Client\ClientBuilder;
-use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 
 class TranslatorFactory
 {
     private Client $client;
-    private CacheItemPoolInterface $cache;
+    private TranslationCacheManager $cacheManager;
     private string $applicationSecretKey;
-    private ?string $currentLang;
     private ?string $localizatorUrl;
 
     public function __construct(
-        string $applicationSecretKey,
-        ?string $currentLang = null
+        string $applicationSecretKey
     ) {
         $this->applicationSecretKey = $applicationSecretKey;
-        $this->currentLang = $currentLang;
-        $this->configureDefaultCacheAdapter();
+        $this->configureDefaultCacheManager();
     }
 
-    public static function create(
-        string $applicationSecretKey,
-        ?string $currentLang = null,
-        int $organizationId = null
-    ): self {
-        return new static($applicationSecretKey, $currentLang, $organizationId);
+    public static function create(string $applicationSecretKey): self {
+        return new static($applicationSecretKey);
     }
 
-    public function configureDefaultCacheAdapter(): void
+    protected function configureDefaultCacheManager(): void
     {
-        $this->cache = new FilesystemAdapter();
+        $this->setCacheManager(new TranslationCacheManager());
     }
 
     /**
-     * @param CacheItemPoolInterface $cacheItemPool
+     * @param TranslationCacheManager $cacheManager
      * @return TranslatorFactory
      */
-    public function setCache(CacheItemPoolInterface $cacheItemPool): TranslatorFactory
+    public function setCacheManager(TranslationCacheManager $cacheManager): TranslatorFactory
     {
-        $this->cache = $cacheItemPool;
+        $this->cacheManager = $cacheManager;
 
         return $this;
     }
@@ -76,18 +68,15 @@ class TranslatorFactory
             $this->client = ClientBuilder::create($this->localizatorUrl)->build();
         }
 
-        if (!isset($this->cache)) {
-            $this->configureDefaultCacheAdapter();
+        if (!isset($this->cacheManager)) {
+            $this->configureDefaultCacheManager();
         }
 
         $translator = new Translator(
             $this->client,
-            $this->cache,
-            $this->applicationSecretKey,
-            $this->currentLang
+            $this->cacheManager,
+            $this->applicationSecretKey
         );
-
-        $translator->setWarmCacheIfEmpty(true);
 
         return $translator;
     }

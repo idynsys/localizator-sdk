@@ -9,10 +9,10 @@ class StaticTranslationDataCollection
 
     public function __construct(array $data, ?string $language)
     {
-        $this->translations = (is_null($language) ? $data['data'] : [$language => $data['data']]) ?? [];
+        $this->translations = $data['data'];
     }
 
-    public function getAll(string $language = null): array
+    public function getTranslations(string $language = null): array
     {
         if (is_null($language)) {
             return $this->translations;
