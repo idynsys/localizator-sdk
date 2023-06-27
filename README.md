@@ -172,7 +172,7 @@ $translator = TranslatorFactory::create('Application Secret Key')->build();
     ]
 ```
 
-3. При типе кэширования ` PARENTS_STORE_TYPE `:
+3. При типе кэширования ` LANGUAGE_STORAGE_TYPE `:
 ```
     /** @var  \Ids\Localizator\DTO\StaticTranslationData $cashedData */
     $cachedData = $translator->getStaticItem('eng');
