@@ -183,7 +183,7 @@ $translator = TranslatorFactory::create('Application Secret Key')->build();
 ```
     array:1 [
       "Test form" => array:1 [
-        "Title" => "Название тестовой формы"
+        "Title" => "Test form title"
       ]
     ]
 ```
