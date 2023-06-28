@@ -2,54 +2,41 @@
 
 namespace Ids\Localizator;
 
+use Ids\Localizator\Cache\TranslationCacheManager;
 use Ids\Localizator\Client\Client;
 use Ids\Localizator\Client\ClientBuilder;
-use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 
 class TranslatorFactory
 {
-    private const DEFAULT_LANG = 'rus';
     private Client $client;
-    private CacheItemPoolInterface $cache;
-    private int $applicationId;
-    private string $currentLang;
+    private TranslationCacheManager $cacheManager;
+    private string $applicationSecretKey;
     private ?string $localizatorUrl;
-    private ?int $defaultProductId = null;
-    private ?int $organizationId;
 
     public function __construct(
-        int $applicationId,
-        int $organizationId = null,
-        ?string $currentLang = 'rus'
+        string $applicationSecretKey
     ) {
-        $this->applicationId = $applicationId;
-        $this->organizationId = $organizationId;
-        $this->currentLang = $currentLang;
-        $this->configureDefaultCacheAdapter();
+        $this->applicationSecretKey = $applicationSecretKey;
+        $this->configureDefaultCacheManager();
     }
 
-    public static function create(
-        int $applicationId,
-        string $currentLang,
-        int $organizationId = null
-    ): self {
-        return new static($applicationId, $organizationId, $currentLang ?? self::DEFAULT_LANG);
+    public static function create(string $applicationSecretKey): self {
+        return new static($applicationSecretKey);
     }
 
-    public function configureDefaultCacheAdapter(): void
+    protected function configureDefaultCacheManager(): void
     {
-        $this->cache = new FilesystemAdapter();
+        $this->setCacheManager(new TranslationCacheManager());
     }
 
     /**
-     * @param CacheItemPoolInterface $cacheItemPool
+     * @param TranslationCacheManager $cacheManager
      * @return TranslatorFactory
      */
-    public function setCache(CacheItemPoolInterface $cacheItemPool): TranslatorFactory
+    public function setCacheManager(TranslationCacheManager $cacheManager): TranslatorFactory
     {
-        $this->cache = $cacheItemPool;
+        $this->cacheManager = $cacheManager;
 
         return $this;
     }
@@ -75,36 +62,22 @@ class TranslatorFactory
         return $this;
     }
 
-    /**
-     * @param int|null $defaultProductId
-     * @return TranslatorFactory
-     */
-    public function setDefaultProductId(?int $defaultProductId): TranslatorFactory
-    {
-        $this->defaultProductId = $defaultProductId;
-        return $this;
-    }
-
     public function build(): Translator
     {
         if (!isset($this->client)) {
             $this->client = ClientBuilder::create($this->localizatorUrl)->build();
         }
 
-        if (!isset($this->cache)) {
-            $this->configureDefaultCacheAdapter();
+        if (!isset($this->cacheManager)) {
+            $this->configureDefaultCacheManager();
         }
 
         $translator = new Translator(
             $this->client,
-            $this->cache,
-            $this->applicationId,
-            $this->currentLang,
-            $this->defaultProductId,
-            $this->organizationId
+            $this->cacheManager,
+            $this->applicationSecretKey
         );
 
-        $translator->setWarmCacheIfEmpty(true);
         return $translator;
     }
 }
