@@ -1,0 +1,34 @@
+{
+    "name": "idynsys/localizator",
+    "description": "Localizator's api client (sdk)",
+    "type": "library",
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7",
+        "psr/cache": "^1.0|^2.0|^3.0",
+        "jms/serializer": "^3",
+        "symfony/cache": "^5.4|^6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ids\\Localizator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ids\\Localizator\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ids"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phpunit/phpunit": "9.6.x-dev",
+        "symfony/var-dumper": "5.4.x-dev",
+        "ext-redis": "*"
+    }
+}
