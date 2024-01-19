@@ -10,7 +10,7 @@ use JMS\Serializer\SerializerInterface;
 
 class ClientBuilder
 {
-    public const LOCALIZATOR_URL = 'https://localizator.prod.idynsys.org';
+    public const LOCALIZATOR_URL = 'https://localizator.preprod.idynsys.org';
     private string $localizatorUrl;
     private ClientInterface $guzzleClient;
     private SerializerInterface $serializer;

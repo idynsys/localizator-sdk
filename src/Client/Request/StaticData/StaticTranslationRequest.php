@@ -11,10 +11,8 @@ class StaticTranslationRequest
     protected ?string $languageCode;
 
     public function __construct(
-        string $applicationSecretKey = null,
         ?string $languageCode = null
     ) {
-        $this->applicationSecretKey = $applicationSecretKey;
         $this->languageCode = $languageCode;
     }
 

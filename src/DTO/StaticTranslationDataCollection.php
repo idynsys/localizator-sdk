@@ -7,7 +7,7 @@ class StaticTranslationDataCollection
 {
     private array $translations;
 
-    public function __construct(array $data, ?string $language)
+    public function __construct(array $data)
     {
         $this->translations = $data['data'];
     }

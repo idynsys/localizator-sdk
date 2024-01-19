@@ -11,18 +11,24 @@ class TranslatorFactory
 {
     private Client $client;
     private TranslationCacheManager $cacheManager;
-    private string $applicationSecretKey;
+
     private ?string $localizatorUrl;
 
-    public function __construct(
-        string $applicationSecretKey
+    public function __construct(?string $clientId = null, ?string $clientSecret = null
     ) {
-        $this->applicationSecretKey = $applicationSecretKey;
+        if ($clientId) {
+            Config::set('clientId', $clientId);
+        }
+
+        if ($clientSecret) {
+            Config::set('clientSecret', $clientSecret);
+        }
+
         $this->configureDefaultCacheManager();
     }
 
-    public static function create(string $applicationSecretKey): self {
-        return new static($applicationSecretKey);
+    public static function create(?string $clientId = null, ?string $clientSecretKey = null): self {
+        return new static($clientId, $clientSecretKey);
     }
 
     protected function configureDefaultCacheManager(): void
@@ -65,7 +71,7 @@ class TranslatorFactory
     public function build(): Translator
     {
         if (!isset($this->client)) {
-            $this->client = ClientBuilder::create($this->localizatorUrl)->build();
+            $this->client = ClientBuilder::create()->build();
         }
 
         if (!isset($this->cacheManager)) {
@@ -74,8 +80,7 @@ class TranslatorFactory
 
         $translator = new Translator(
             $this->client,
-            $this->cacheManager,
-            $this->applicationSecretKey
+            $this->cacheManager
         );
 
         return $translator;

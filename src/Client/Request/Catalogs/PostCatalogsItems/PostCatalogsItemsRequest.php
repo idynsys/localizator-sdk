@@ -14,7 +14,7 @@ class PostCatalogsItemsRequest
     protected ?int $catalogDescription = null;
     protected ?string $itemValue = null;
     /**
-     * @Serializer\Type("array<Ids\Localizator\Client\Request\Catalogs\PostCatalogsItems\Translation>")
+     * @Serializer\Type("array<Ids\Localizator\Client\Requests\Catalogs\PostCatalogsItems\Translation>")
      * @var Translation[]
      */
     protected array $translations = [];

@@ -2,6 +2,7 @@
 
 namespace Ids\Localizator\Client;
 
+use Exception;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
@@ -9,6 +10,7 @@ use Ids\Localizator\Client\Request\Catalogs\PostCatalogsItems\PostCatalogsItemsR
 use Ids\Localizator\Client\Request\StaticData\StaticTranslationRequest;
 use Ids\Localizator\Client\Response\Catalogs\PostCatalogsItems\PostCatalogsItemsResult;
 use Ids\Localizator\DTO\StaticTranslationDataCollection;
+use Ids\Localizator\DTO\Requests\RequestData;
 use JMS\Serializer\SerializerInterface;
 
 class Client
@@ -17,6 +19,9 @@ class Client
 
     private ClientInterface $client;
     private SerializerInterface $serializer;
+
+    // Exception возникший при выполнении запроса
+    private ?Exception $error = null;
 
     public function __construct(ClientInterface $client, SerializerInterface $serializer)
     {
@@ -75,4 +80,77 @@ class Client
 
         return $data['data'];
     }
+
+    /**
+     * @param RequestData $data
+     * @param bool $throwException
+     * @return $this
+     */
+    public function sendRequestToSystem(RequestData $data, bool $throwException = true): self
+    {
+        $this->error = null;
+
+        try {
+            dump($data->getMethod(), $data->getUrl(), $data->getData());
+            $res = $this->client->request($data->getMethod(), $data->getUrl(), $data->getData());
+
+            $this->content = $res->getBody()->getContents();
+        } catch (\Throwable $exception) {
+            dd($exception->getMessage(), $exception);
+            $handler = new ExceptionHandler($exception);
+            $this->error = $handler->handle();
+        }
+
+        if ($this->error && $throwException) {
+            throw $this->error;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Получить результат запроса. Если произошла ошибка, то вернется null
+     *
+     * @param string|null $key
+     * @return string[]|null
+     */
+    public function getResult(?string $key = null): ?array
+    {
+        if ($this->hasError() || !isset($this->content)) {
+            return null;
+        }
+
+        $data = json_decode($this->content, true, 512, JSON_THROW_ON_ERROR);
+
+        if ($key && is_array($data)) {
+            $data = [$key => array_key_exists($key, $data) ? $data[$key] : ''];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Проверить наличие ошибки в запросе
+     *
+     * @return bool
+     */
+    public function hasError(): bool
+    {
+        return !is_null($this->error);
+    }
+
+    /**
+     * Получить ошибку запроса, если она произошла
+     *
+     * @return array|null
+     */
+    public function getError(): ?array
+    {
+        if (!$this->hasError()) {
+            return null;
+        }
+
+        return $this->error->getError();
+    }
+
 }
