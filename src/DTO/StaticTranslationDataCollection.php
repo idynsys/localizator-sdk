@@ -2,32 +2,103 @@
 
 namespace Ids\Localizator\DTO;
 
+use Ids\Localizator\Collections\TranslationCollection;
 
+/**
+ * Коллекция переводов статических элементов, полученная по запросу
+ */
 class StaticTranslationDataCollection
 {
-    private array $translations;
+    // данные, полученные по запросу
+    private array $originalTranslations;
+
+    // Преобразованные данные в DTO-коллекцию
+    private TranslationCollection $translationData;
 
     public function __construct(array $data)
     {
-        $this->translations = $data['data'];
+        $this->originalTranslations = $data['data'];
     }
 
-    public function getTranslations(string $language = null): array
+    /**
+     * Получить оригинальные данные, полученные по запросу
+     *
+     * @return array
+     */
+    public function getOriginalTranslations(): array
     {
-        if (is_null($language)) {
-            return $this->translations;
+        return $this->originalTranslations;
+    }
+
+    /**
+     * Получить коллекцию DTO-переводов
+     *
+     * @param string|null $product - фильтр по продукту
+     * @param string|null $language - фильтр по языку
+     * @return TranslationCollection
+     */
+    public function getTranslations(?string $product = null, ?string $language = null): TranslationCollection
+    {
+        if ($product || $language) {
+            return $this->filterTranslations($product, $language);
         }
-        return $this->translations[$language] ?? [];
+
+        if (!isset($this->translationData)) {
+            $this->translationData = new TranslationCollection();
+            foreach ($this->translations() as $translation) {
+                $this->translationData->addItem($translation);
+            }
+        }
+
+        return $this->translationData;
     }
 
-    public function translations()
+    /**
+     * Функция, для работы с данными переводов через итератор
+     *
+     * @param string|null $searchProduct
+     * @param string|null $searchLanguage
+     * @return \Generator
+     */
+    public function translations(?string $searchProduct = null, ?string $searchLanguage = null)
     {
-        foreach ($this->translations as $language => &$parents) {
-            foreach ($parents as $parentName => &$children) {
-                foreach ($children as $childName => $translation) {
-                    yield new StaticTranslationData($language, [$parentName, $childName], $translation);
+        foreach ($this->originalTranslations as &$product) {
+            if ($searchProduct && $product['product_name'] !== $searchProduct) {
+                continue;
+            }
+            foreach ($product['translations'] as $language => &$parents) {
+                if ($searchLanguage && $language !== $searchLanguage) {
+                    continue;
+                }
+                foreach ($parents as $parentName => &$children) {
+                    foreach ($children as $childName => $translation) {
+                        yield new StaticTranslationData(
+                            $product['product_name'],
+                            $language,
+                            [$parentName, $childName],
+                            $translation
+                        );
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Выборка переводов по параметрам поиска и возврат в виде коллекции DTO
+     *
+     * @param string|null $product
+     * @param string|null $language
+     * @return TranslationCollection
+     */
+    private function filterTranslations(?string $product, ?string $language): TranslationCollection
+    {
+        $result = new TranslationCollection();
+
+        foreach ($this->translations($product, $language) as $translation) {
+            $result->addItem($translation);
+        }
+
+        return $result;
     }
 }

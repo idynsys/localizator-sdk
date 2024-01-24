@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use Ids\Localizator\Cache\TranslationCacheManager;
 use Ids\Localizator\Cache\CacheStorageTypes;
 use Ids\Localizator\Client\Client;
-use Ids\Localizator\Client\Request\StaticData\StaticTranslationRequest;
 use Ids\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
 use Ids\Localizator\DTO\Requests\Auth\AuthRequestData;
 use Ids\Localizator\DTO\Requests\RequestData;
@@ -15,6 +14,7 @@ use Ids\Localizator\DTO\StaticTranslationData;
 use Ids\Localizator\DTO\StaticTranslationDataCollection;
 use Ids\Localizator\DTO\Responses\TokenData;
 use Ids\Localizator\DTO\TranslationData;
+use Ids\Localizator\Exceptions\UnauthorizedException;
 use Psr\Cache\InvalidArgumentException;
 
 class Translator
@@ -55,9 +55,9 @@ class Translator
      * @param ...$location
      * @return TranslationData
      */
-    public function getStaticItem(string $language, ...$location): TranslationData
+    public function getStaticItemFromCache(string $product, string $language, ...$location): TranslationData
     {
-        return $this->cacheManager->get(new StaticTranslationData($language, $location));
+        return $this->cacheManager->get(new StaticTranslationData($product, $language, $location));
     }
 
 
@@ -115,13 +115,13 @@ class Translator
     }
 
     /**
-     * Получить переводы из локализатора
+     * Получить переводы из Локализатора
      *
      * @param string|null $languageCode
      * @return StaticTranslationDataCollection
      * @throws GuzzleException
      */
-    public function importStaticItems(?string $languageCode = null): StaticTranslationDataCollection
+    public function getStaticItems(?string $languageCode = null): StaticTranslationDataCollection
     {
         $data = new StaticTranslationsRequestData($languageCode);
         $this->sendRequest($data);
@@ -132,12 +132,16 @@ class Translator
     }
 
     /**
+     * Загрузить данные переводов в кэш
+     *
+     * @param string|null $languageCode
+     * @return void
      * @throws GuzzleException
      * @throws InvalidArgumentException
      */
-    public function importStaticItemsInCache(?string $languageCode = null): void
+    public function setStaticItemsToCache(?string $languageCode = null): void
     {
-        $result = $this->importStaticItems($languageCode);
+        $result = $this->getStaticItems($languageCode);
 
         foreach ($result->translations() as $translation) {
             $this->cacheManager->save($translation);
@@ -145,6 +149,8 @@ class Translator
     }
 
     /**
+     * Очистить кэш
+     *
      * @return void
      */
     public function cacheClear(): void

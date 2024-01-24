@@ -40,4 +40,9 @@ class Config
 
         $instance->config[$key] = $value;
     }
+
+    public static function getHost(): ?string
+    {
+        return self::get(self::get('mode', 'DEVELOPMENT') === 'PRODUCTION' ? 'prod_host' : 'preprod_host');
+    }
 }

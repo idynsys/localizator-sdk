@@ -8,6 +8,9 @@ use Ids\Localizator\DTO\Requests\RequestData;
 use Ids\Localizator\DTO\Requests\Auth\WithAuthorizationToken;
 use Ids\Localizator\Enums\RequestMethod;
 
+/**
+ * Данные для запроса на получение переводов для статических элементов
+ */
 class StaticTranslationsRequestData extends RequestData implements AuthenticationTokenInclude
 {
     use WithAuthorizationToken;
@@ -18,6 +21,7 @@ class StaticTranslationsRequestData extends RequestData implements Authenticatio
     // URL из конфигурации для выполнения запроса
     protected string $urlConfigKeyForRequest = 'STATIC_TRANSLATIONS_DATA_URL';
 
+    // Код языка для получения переводов
     protected ?string $languageCode;
 
     public function __construct(?string $languageCode = null)

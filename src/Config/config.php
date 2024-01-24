@@ -19,5 +19,6 @@ return [
     // url для получения токена аутентификации
     'AUTH_URL' => '/user-access/token',
 
+    // url для получения статических переводов
     'STATIC_TRANSLATIONS_DATA_URL' => '/localizator/translations/for-application/static'
 ];

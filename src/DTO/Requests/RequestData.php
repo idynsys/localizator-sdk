@@ -24,8 +24,7 @@ abstract class RequestData
      */
     protected function getRequestUrlConfigKey(): string
     {
-        return Config::get(Config::get('mode', 'DEVELOPMENT') === 'PRODUCTION' ? 'prod_host' : 'preprod_host')
-            . Config::get($this->urlConfigKeyForRequest);
+        return Config::getHost() . Config::get($this->urlConfigKeyForRequest);
     }
 
     /**

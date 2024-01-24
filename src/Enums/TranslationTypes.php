@@ -1,8 +1,10 @@
 <?php
 
-namespace Ids\Localizator\DTO;
+namespace Ids\Localizator\Enums;
 
-use Ids\Localizator\Enum;
+/*
+ * Типы элементов перевода
+ */
 
 class TranslationTypes extends Enum
 {
