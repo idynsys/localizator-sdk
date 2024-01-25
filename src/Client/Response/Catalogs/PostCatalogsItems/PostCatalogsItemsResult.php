@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\Client\Response\Catalogs\PostCatalogsItems;
+namespace Idynsys\Localizator\Client\Response\Catalogs\PostCatalogsItems;
 
 use JMS\Serializer\Annotation as Serializer;
 

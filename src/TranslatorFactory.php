@@ -1,10 +1,10 @@
 <?php
 
-namespace Ids\Localizator;
+namespace Idynsys\Localizator;
 
-use Ids\Localizator\Cache\TranslationCacheManager;
-use Ids\Localizator\Client\Client;
-use Ids\Localizator\Client\ClientBuilder;
+use Idynsys\Localizator\Cache\TranslationCacheManager;
+use Idynsys\Localizator\Client\Client;
+use Idynsys\Localizator\Client\ClientBuilder;
 
 
 class TranslatorFactory

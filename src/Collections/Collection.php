@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\Collections;
+namespace Idynsys\Localizator\Collections;
 
 use Iterator;
 

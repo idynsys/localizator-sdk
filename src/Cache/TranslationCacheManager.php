@@ -1,9 +1,9 @@
 <?php
 
-namespace Ids\Localizator\Cache;
+namespace Idynsys\Localizator\Cache;
 
 use DateInterval;
-use Ids\Localizator\DTO\TranslationData;
+use Idynsys\Localizator\DTO\TranslationData;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Ids\Localizator\DTO;
+namespace Idynsys\Localizator\DTO;
 
-use Ids\Localizator\Cache\CacheStorageTypes;
-use Ids\Localizator\Enums\TranslationTypes;
+use Idynsys\Localizator\Cache\CacheStorageTypes;
+use Idynsys\Localizator\Enums\TranslationTypes;
 use RuntimeException;
 
 /**

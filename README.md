@@ -38,8 +38,8 @@ composer req idynsys/localizator
 
    2.2. Через создание объекта от класса Translator:
    ```php
-   use Ids\Localizator\TranslatorFactory;
-   use Ids\Localizator\Translator;
+   use Idynsys\Localizator\TranslatorFactory;
+   use Idynsys\Localizator\Translator;
    
    /** @var Translator $translator */
    $translator = TranslatorFactory::create('<clientId>', '<secret>')->build();
@@ -63,8 +63,8 @@ LOCALIZER_SDK_MODE=PRODUCTION
 ```php
 <?php
 
-use Ids\Localizator\TranslatorFactory;
-use Ids\Localizator\Translator;
+use Idynsys\Localizator\TranslatorFactory;
+use Idynsys\Localizator\Translator;
 
 // Если "clientId" и "secret" установлены через переменные окружения (см. п.2.1.)
 /** @var Translator $translator */
@@ -92,7 +92,7 @@ $translator = TranslatorFactory::create('<clientId>', '<secret>')->build();
 включен в результат.
 
 Результатом загрузки будет объект класса
-` Ids\Localizator\DTO\StaticTranslationDataCollection `
+` Idynsys\Localizator\DTO\StaticTranslationDataCollection `
 
 Получить из объекта $allTranslations или $rusTranslations данные можно следующими
 способами:
@@ -125,11 +125,11 @@ array:1 [
       ]
     ]
 ```
-2. Через коллекцию объектов \Ids\Localizator\DTO\StaticTranslationData:<br>
+2. Через коллекцию объектов \Idynsys\Localizator\DTO\StaticTranslationData:<br>
    
 2.1. Все переводы:
 ```php
-use Ids\Localizator\DTO\StaticTranslationData;
+use Idynsys\Localizator\DTO\StaticTranslationData;
 
 /** @var StaticTranslationData $translation */
 foreach ($allTranslations->translations() as $translation) {
@@ -139,7 +139,7 @@ foreach ($allTranslations->translations() as $translation) {
 
 2.2. Все переводы для определенного продукта:
 ```php
-use Ids\Localizator\DTO\StaticTranslationData;
+use Idynsys\Localizator\DTO\StaticTranslationData;
 
 /** @var StaticTranslationData $translation */
 foreach ($allTranslations->translations('Test product name') as $translation) {
@@ -149,7 +149,7 @@ foreach ($allTranslations->translations('Test product name') as $translation) {
 
 2.2. Все переводы для определенного продукта для английского языка:
 ```php
-use Ids\Localizator\DTO\StaticTranslationData;
+use Idynsys\Localizator\DTO\StaticTranslationData;
 
 /** @var StaticTranslationData $translation */
 foreach ($allTranslations->translations('Test product name', 'rus') as $translation) {
@@ -159,7 +159,7 @@ foreach ($allTranslations->translations('Test product name', 'rus') as $translat
 
 2.3. Все переводы для английского языка:
 ```php
-use Ids\Localizator\DTO\StaticTranslationData;
+use Idynsys\Localizator\DTO\StaticTranslationData;
 
 /** @var StaticTranslationData $translation */
 foreach ($allTranslations->translations(null, 'rus') as $translation) {
@@ -219,7 +219,7 @@ foreach ($allTranslations->translations(null, 'rus') as $translation) {
 
 1. При типе кэширования ` TRANSLATIONS_STORAGE_TYPE `:
 ```php
-    /** @var  \Ids\Localizator\DTO\StaticTranslationData $cashedData */
+    /** @var  \Idynsys\Localizator\DTO\StaticTranslationData $cashedData */
     $cachedData = $translator->getStaticItemFromCache('Test product name', 'eng', 'Test form', 'Title');
     
     echo $cachedData->getTranslation();
@@ -231,7 +231,7 @@ foreach ($allTranslations->translations(null, 'rus') as $translation) {
 
 2. При типе кэширования ` PARENTS_STORAGE_TYPE `:
 ```php
-    /** @var  \Ids\Localizator\DTO\StaticTranslationData $cashedData */
+    /** @var  \Idynsys\Localizator\DTO\StaticTranslationData $cashedData */
     $cachedData = $translator->getStaticItem('Test product name', 'rus');
 
     var_dump($cachedData->getTranslation()); 
@@ -245,7 +245,7 @@ foreach ($allTranslations->translations(null, 'rus') as $translation) {
 
 3. При типе кэширования ` LANGUAGE_STORAGE_TYPE `:
 ```php
-    /** @var  \Ids\Localizator\DTO\StaticTranslationData $cashedData */
+    /** @var  \Idynsys\Localizator\DTO\StaticTranslationData $cashedData */
     $cachedData = $translator->getStaticItem('eng');
 
     var_dump($cachedData->getTranslation()); 

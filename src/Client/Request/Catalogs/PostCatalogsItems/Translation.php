@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\Client\Request\Catalogs\PostCatalogsItems;
+namespace Idynsys\Localizator\Client\Request\Catalogs\PostCatalogsItems;
 
 class Translation
 {

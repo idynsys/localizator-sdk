@@ -1,9 +1,9 @@
 <?php
 
-namespace Ids\Localizator\Client;
+namespace Idynsys\Localizator\Client;
 
 use GuzzleHttp\ClientInterface;
-use Ids\Localizator\Config;
+use Idynsys\Localizator\Config;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\SerializerBuilder;

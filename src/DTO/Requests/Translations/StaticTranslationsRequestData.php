@@ -1,11 +1,11 @@
 <?php
 
-namespace Ids\Localizator\DTO\Requests\Translations;
+namespace Idynsys\Localizator\DTO\Requests\Translations;
 
-use Ids\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
-use Ids\Localizator\DTO\Requests\RequestData;
-use Ids\Localizator\DTO\Requests\Auth\WithAuthorizationToken;
-use Ids\Localizator\Enums\RequestMethod;
+use Idynsys\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
+use Idynsys\Localizator\DTO\Requests\RequestData;
+use Idynsys\Localizator\DTO\Requests\Auth\WithAuthorizationToken;
+use Idynsys\Localizator\Enums\RequestMethod;
 
 /**
  * Данные для запроса на получение переводов для статических элементов

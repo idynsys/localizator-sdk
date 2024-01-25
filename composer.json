@@ -17,7 +17,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Ids\\Localizator\\Tests\\": "tests/"
+            "Idynsys\\Localizator\\Tests\\": "tests/"
         }
     },
     "authors": [

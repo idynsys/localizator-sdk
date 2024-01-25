@@ -1,9 +1,9 @@
 <?php
 
-namespace Ids\Localizator\DTO\Requests;
+namespace Idynsys\Localizator\DTO\Requests;
 
-use Ids\Localizator\Config;
-use Ids\Localizator\Enums\RequestMethod;
+use Idynsys\Localizator\Config;
+use Idynsys\Localizator\Enums\RequestMethod;
 
 /**
  * DTO для запроса. От этого класса наследуются все DTO для запросов

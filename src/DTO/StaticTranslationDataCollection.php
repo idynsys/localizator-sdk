@@ -1,8 +1,8 @@
 <?php
 
-namespace Ids\Localizator\DTO;
+namespace Idynsys\Localizator\DTO;
 
-use Ids\Localizator\Collections\TranslationCollection;
+use Idynsys\Localizator\Collections\TranslationCollection;
 
 /**
  * Коллекция переводов статических элементов, полученная по запросу

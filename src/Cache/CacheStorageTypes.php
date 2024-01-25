@@ -1,8 +1,8 @@
 <?php
 
-namespace Ids\Localizator\Cache;
+namespace Idynsys\Localizator\Cache;
 
-use Ids\Localizator\Enums\Enum;
+use Idynsys\Localizator\Enums\Enum;
 
 /**
  * Класс-enum для определения типов группировки переводов в кэш-хранилище

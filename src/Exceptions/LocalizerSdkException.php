@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\Exceptions;
+namespace Idynsys\Localizator\Exceptions;
 
 use Exception;
 

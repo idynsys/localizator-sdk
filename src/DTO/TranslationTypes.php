@@ -1,8 +1,8 @@
 <?php
 
-namespace Ids\Localizator\DTO;
+namespace Idynsys\Localizator\DTO;
 
-use Ids\Localizator\Enum;
+use Idynsys\Localizator\Enum;
 
 class TranslationTypes extends Enum
 {

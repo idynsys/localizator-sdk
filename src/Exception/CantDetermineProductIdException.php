@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\Exception;
+namespace Idynsys\Localizator\Exception;
 
 class CantDetermineProductIdException extends \RuntimeException
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\DTO\Requests\Auth;
+namespace Idynsys\Localizator\DTO\Requests\Auth;
 
 /**
  * Трейт для запросов с токенм аутентификации

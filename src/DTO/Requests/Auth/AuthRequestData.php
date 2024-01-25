@@ -1,10 +1,10 @@
 <?php
 
-namespace Ids\Localizator\DTO\Requests\Auth;
+namespace Idynsys\Localizator\DTO\Requests\Auth;
 
-use Ids\Localizator\Config;
-use Ids\Localizator\DTO\Requests\RequestData;
-use Ids\Localizator\Enums\RequestMethod;
+use Idynsys\Localizator\Config;
+use Idynsys\Localizator\DTO\Requests\RequestData;
+use Idynsys\Localizator\Enums\RequestMethod;
 
 /**
  * Класс DTO для запроса на получение токена аутентификации

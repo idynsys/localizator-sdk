@@ -1,20 +1,20 @@
 <?php
 
-namespace Ids\Localizator;
+namespace Idynsys\Localizator;
 
 use GuzzleHttp\Exception\GuzzleException;
-use Ids\Localizator\Cache\TranslationCacheManager;
-use Ids\Localizator\Cache\CacheStorageTypes;
-use Ids\Localizator\Client\Client;
-use Ids\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
-use Ids\Localizator\DTO\Requests\Auth\AuthRequestData;
-use Ids\Localizator\DTO\Requests\RequestData;
-use Ids\Localizator\DTO\Requests\Translations\StaticTranslationsRequestData;
-use Ids\Localizator\DTO\StaticTranslationData;
-use Ids\Localizator\DTO\StaticTranslationDataCollection;
-use Ids\Localizator\DTO\Responses\TokenData;
-use Ids\Localizator\DTO\TranslationData;
-use Ids\Localizator\Exceptions\UnauthorizedException;
+use Idynsys\Localizator\Cache\TranslationCacheManager;
+use Idynsys\Localizator\Cache\CacheStorageTypes;
+use Idynsys\Localizator\Client\Client;
+use Idynsys\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
+use Idynsys\Localizator\DTO\Requests\Auth\AuthRequestData;
+use Idynsys\Localizator\DTO\Requests\RequestData;
+use Idynsys\Localizator\DTO\Requests\Translations\StaticTranslationsRequestData;
+use Idynsys\Localizator\DTO\StaticTranslationData;
+use Idynsys\Localizator\DTO\StaticTranslationDataCollection;
+use Idynsys\Localizator\DTO\Responses\TokenData;
+use Idynsys\Localizator\DTO\TranslationData;
+use Idynsys\Localizator\Exceptions\UnauthorizedException;
 use Psr\Cache\InvalidArgumentException;
 
 class Translator

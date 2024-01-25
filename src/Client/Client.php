@@ -1,11 +1,11 @@
 <?php
 
-namespace Ids\Localizator\Client;
+namespace Idynsys\Localizator\Client;
 
 use Exception;
 use GuzzleHttp\ClientInterface;
-use Ids\Localizator\DTO\Requests\RequestData;
-use Ids\Localizator\Exceptions\ExceptionHandler;
+use Idynsys\Localizator\DTO\Requests\RequestData;
+use Idynsys\Localizator\Exceptions\ExceptionHandler;
 use JMS\Serializer\SerializerInterface;
 
 class Client

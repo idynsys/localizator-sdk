@@ -1,8 +1,8 @@
 <?php
 
-namespace Ids\Localizator\DTO;
+namespace Idynsys\Localizator\DTO;
 
-use Ids\Localizator\Enums\TranslationTypes;
+use Idynsys\Localizator\Enums\TranslationTypes;
 
 /**
  * DTO перевода статического элемента

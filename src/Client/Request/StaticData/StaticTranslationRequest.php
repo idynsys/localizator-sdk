@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\Client\Request\StaticData;
+namespace Idynsys\Localizator\Client\Request\StaticData;
 
 class StaticTranslationRequest
 {

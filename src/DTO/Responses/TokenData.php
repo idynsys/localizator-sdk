@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\DTO\Responses;
+namespace Idynsys\Localizator\DTO\Responses;
 
 class TokenData
 {

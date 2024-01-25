@@ -1,6 +1,6 @@
 <?php
 
-namespace Ids\Localizator\Enums;
+namespace Idynsys\Localizator\Enums;
 
 class Enum
 {
