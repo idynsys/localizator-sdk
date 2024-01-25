@@ -2,7 +2,7 @@
 
 namespace Ids\Localizator\Cache;
 
-use Ids\Localizator\Enum;
+use Ids\Localizator\Enums\Enum;
 
 /**
  * Класс-enum для определения типов группировки переводов в кэш-хранилище

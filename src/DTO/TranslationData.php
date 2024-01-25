@@ -154,4 +154,24 @@ abstract class TranslationData
     {
         return $this->translation;
     }
+
+    /**
+     * Получить код языка
+     *
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->languageCode;
+    }
+
+    /**
+     * Получить имя продукта
+     *
+     * @return string
+     */
+    public function getProductName(): string
+    {
+        return $this->product;
+    }
 }

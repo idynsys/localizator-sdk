@@ -2,13 +2,13 @@
 
 return [
     // Идентификатор клиента
-    'clientId'     => getenv('BILLING_SDK_CLIENT_ID') ?: '',
+    'clientId'     => getenv('LOCALIZER_SDK_CLIENT_ID') ?: '',
 
     // Секретный ключ клиента
-    'clientSecret' => getenv('BILLING_SDK_APPLICATION_SECRET_KEY') ?: '',
+    'clientSecret' => getenv('LOCALIZER_SDK_APPLICATION_SECRET_KEY') ?: '',
 
     // Режим работы приложения с пакетом
-    'mode' => getenv('BILLING_SDK_MODE') ?: 'DEVELOPMENT',
+    'mode' => getenv('LOCALIZER_SDK_MODE') ?: 'DEVELOPMENT',
 
     // продакшн хост
     'prod_host' => 'https://api-gateway.idynsys.org/api',

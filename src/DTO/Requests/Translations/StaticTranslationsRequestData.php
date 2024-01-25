@@ -2,7 +2,6 @@
 
 namespace Ids\Localizator\DTO\Requests\Translations;
 
-use Ids\Localizator\Config;
 use Ids\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
 use Ids\Localizator\DTO\Requests\RequestData;
 use Ids\Localizator\DTO\Requests\Auth\WithAuthorizationToken;
@@ -36,8 +35,6 @@ class StaticTranslationsRequestData extends RequestData implements Authenticatio
      */
     public function getUrl(): string
     {
-        Config::set('preprod_host', 'http://192.168.0.11:8083/api');
-        Config::set('STATIC_TRANSLATIONS_DATA_URL', '/translations/for-application/static');
         return parent::getUrl() . ($this->languageCode ? '/' . $this->languageCode : '');
     }
 }
