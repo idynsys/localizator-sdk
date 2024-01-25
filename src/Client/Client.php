@@ -2,21 +2,19 @@
 
 namespace Ids\Localizator\Client;
 
+use Exception;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\RequestOptions;
-use Ids\Localizator\Client\Request\Catalogs\PostCatalogsItems\PostCatalogsItemsRequest;
-use Ids\Localizator\Client\Request\StaticData\StaticTranslationRequest;
-use Ids\Localizator\Client\Response\Catalogs\PostCatalogsItems\PostCatalogsItemsResult;
-use Ids\Localizator\DTO\StaticTranslationDataCollection;
+use Ids\Localizator\DTO\Requests\RequestData;
+use Ids\Localizator\Exceptions\ExceptionHandler;
 use JMS\Serializer\SerializerInterface;
 
 class Client
 {
-    const URL_GET_STATIC_TRANSLATIONS = '/api/translations/for-application/static/{language}';
-
     private ClientInterface $client;
     private SerializerInterface $serializer;
+
+    // Exceptions возникший при выполнении запроса
+    private ?Exception $error = null;
 
     public function __construct(ClientInterface $client, SerializerInterface $serializer)
     {
@@ -24,55 +22,74 @@ class Client
         $this->serializer = $serializer;
     }
 
-    private function getUrl(string $url, $attributes): string
+    /**
+     * @param RequestData $data
+     * @param bool $throwException
+     * @return $this
+     */
+    public function sendRequestToSystem(RequestData $data, bool $throwException = true): self
     {
-        foreach ($attributes as $key => $value) {
-            $url = str_replace('{' . $key . '}', $value ?: '', $url);
+        $this->error = null;
+
+        try {
+            $res = $this->client->request($data->getMethod(), $data->getUrl(), $data->getData());
+
+            $this->content = $res->getBody()->getContents();
+        } catch (\Throwable $exception) {
+            $handler = new ExceptionHandler($exception);
+            $this->error = $handler->handle();
         }
 
-        return str_replace(array_keys($attributes), $attributes, $url);
+        if ($this->error && $throwException) {
+            throw $this->error;
+        }
+
+        return $this;
     }
 
     /**
-     * @throws GuzzleException
+     * Получить результат запроса. Если произошла ошибка, то вернется null
+     *
+     * @param string|null $key
+     * @return string[]|null
      */
-    public function getStaticTranslations(StaticTranslationRequest $request): StaticTranslationDataCollection
+    public function getResult(?string $key = null): ?array
     {
-        $response = $this->client->get(
-            $this->getUrl(self::URL_GET_STATIC_TRANSLATIONS, ['language' => $request->getLanguageCode()]),
-            [
-                RequestOptions::JSON => $request->getJsonParameters(),
-                RequestOptions::HEADERS => $request->getHeaders()
-            ]
-        );
+        if ($this->hasError() || !isset($this->content)) {
+            return null;
+        }
 
-        $data = $this->serializer->deserialize(
-            $response->getBody()->getContents(),
-            'array',
-            'json'
-        );
+        $data = $this->serializer->deserialize($this->content, 'array', 'json');
 
-        return new StaticTranslationDataCollection($data, $request->getLanguageCode());
+        if ($key && is_array($data)) {
+            $data = [$key => array_key_exists($key, $data) ? $data[$key] : ''];
+        }
+
+        return $data;
     }
 
     /**
-     * @throws GuzzleException
+     * Проверить наличие ошибки в запросе
+     *
+     * @return bool
      */
-    public function postCatalogItems(PostCatalogsItemsRequest $request): PostCatalogsItemsResult
+    public function hasError(): bool
     {
-        $response = $this->client->post(
-            '/api/localizer/catalogs/items',
-            [
-                RequestOptions::BODY => $this->serializer->serialize($request, 'json'),
-            ]
-        );
-
-        $data = $this->serializer->deserialize(
-            $response->getBody()->getContents(),
-            'array<string,' . PostCatalogsItemsResult::class . '>',
-            'json'
-        );
-
-        return $data['data'];
+        return !is_null($this->error);
     }
+
+    /**
+     * Получить ошибку запроса, если она произошла
+     *
+     * @return array|null
+     */
+    public function getError(): ?array
+    {
+        if (!$this->hasError()) {
+            return null;
+        }
+
+        return $this->error->getError();
+    }
+
 }

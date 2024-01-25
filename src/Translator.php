@@ -6,26 +6,35 @@ use GuzzleHttp\Exception\GuzzleException;
 use Ids\Localizator\Cache\TranslationCacheManager;
 use Ids\Localizator\Cache\CacheStorageTypes;
 use Ids\Localizator\Client\Client;
-use Ids\Localizator\Client\Request\StaticData\StaticTranslationRequest;
+use Ids\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
+use Ids\Localizator\DTO\Requests\Auth\AuthRequestData;
+use Ids\Localizator\DTO\Requests\RequestData;
+use Ids\Localizator\DTO\Requests\Translations\StaticTranslationsRequestData;
 use Ids\Localizator\DTO\StaticTranslationData;
 use Ids\Localizator\DTO\StaticTranslationDataCollection;
+use Ids\Localizator\DTO\Responses\TokenData;
 use Ids\Localizator\DTO\TranslationData;
+use Ids\Localizator\Exceptions\UnauthorizedException;
 use Psr\Cache\InvalidArgumentException;
 
 class Translator
 {
     private Client $client;
+
     private TranslationCacheManager $cacheManager;
-    private string $applicationSecretKey;
+
+    // Количество попыток для запроса токена аутентификации
+    private int $requestAttempts = 3;
+
+    // Сохраняет токен для выполнения операций по счету
+    private ?string $token = null;
 
     public function __construct(
         Client $client,
-        TranslationCacheManager $cacheManager,
-        string $applicationSecretKey
+        TranslationCacheManager $cacheManager
     ) {
         $this->client = $client;
         $this->cacheManager = $cacheManager;
-        $this->applicationSecretKey = $applicationSecretKey;
     }
 
     /**
@@ -46,32 +55,93 @@ class Translator
      * @param ...$location
      * @return TranslationData
      */
-    public function getStaticItem(string $language, ...$location): TranslationData
+    public function getStaticItemFromCache(string $product, string $language, ...$location): TranslationData
     {
-        return $this->cacheManager->get(new StaticTranslationData($language, $location));
+        return $this->cacheManager->get(new StaticTranslationData($product, $language, $location));
+    }
+
+
+    /**
+     * Получить токен аутентификации для выполнения запросов к сервису Billing
+     *
+     * @param int $attempt
+     * @return void
+     */
+    private function getTokenForRequest(int $attempt = 0): void
+    {
+        if ($this->token && $attempt === 0) {
+            return;
+        }
+
+        if (++$attempt <= $this->requestAttempts) {
+            $result = $this->getToken($attempt === $this->requestAttempts);
+
+            if (!$result) {
+                $this->getTokenForRequest($attempt);
+            }
+        } else {
+            $result = false;
+        }
+
+        if (!$result) {
+            throw new UnauthorizedException();
+        }
     }
 
     /**
-     * Получить переводы из локализатора
+     * Добавить токен в заголовок запроса
+     *
+     * @param RequestData $data
+     * @return void
+     */
+    private function addToken(RequestData $data): void
+    {
+        if ($data instanceof AuthenticationTokenInclude) {
+            $this->getTokenForRequest();
+            $data->setToken($this->token);
+        }
+    }
+
+    /**
+     *  Отправить запрос в B2B Backoffice
+     *
+     * @param RequestData $data
+     * @return void
+     */
+    private function sendRequest(RequestData $data): void
+    {
+        $this->addToken($data);
+        $this->client->sendRequestToSystem($data);
+    }
+
+    /**
+     * Получить переводы из Локализатора
      *
      * @param string|null $languageCode
      * @return StaticTranslationDataCollection
      * @throws GuzzleException
      */
-    public function importStaticItems(?string $languageCode = null): StaticTranslationDataCollection
+    public function getStaticItems(?string $languageCode = null): StaticTranslationDataCollection
     {
-        return $this->client->getStaticTranslations(
-            new StaticTranslationRequest($this->applicationSecretKey, $languageCode)
-        );
+        $data = new StaticTranslationsRequestData($languageCode);
+        $this->sendRequest($data);
+
+        $result = $this->client->getResult();
+
+        return new StaticTranslationDataCollection($result);
     }
 
     /**
+     * Загрузить данные переводов в кэш
+     *
+     * @param string|null $languageCode
+     * @return void
      * @throws GuzzleException
      * @throws InvalidArgumentException
      */
-    public function importStaticItemsInCache(?string $languageCode = null): void
+    public function setStaticItemsToCache(?string $languageCode = null): void
     {
-        $result = $this->importStaticItems($languageCode);
+        $result = $this->getStaticItems($languageCode);
 
         foreach ($result->translations() as $translation) {
             $this->cacheManager->save($translation);
@@ -79,10 +149,30 @@ class Translator
     }
 
     /**
+     * Очистить кэш
+     *
      * @return void
      */
     public function cacheClear(): void
     {
         $this->cacheManager->clear();
+    }
+
+    /**
+     * Получить токен аутентификации в B2B Backoffice
+     *
+     * @param bool $throwException
+     * @return string|null
+     */
+    public function getToken(bool $throwException = true): TokenData
+    {
+        $data = new AuthRequestData();
+
+        $this->client->sendRequestToSystem($data, $throwException);
+
+        $result = $this->client->getResult('data');
+        $this->token = ($result && array_key_exists('data', $result)) ? $result['data'] : '';
+
+        return new TokenData($this->token);
     }
 }

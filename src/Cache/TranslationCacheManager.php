@@ -8,6 +8,9 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
+/*
+ * Класс для управления переводами в кэше
+ */
 class TranslationCacheManager
 {
     private const DEFAULT_EXPIRES_AFTER = '10 years';
@@ -84,6 +87,7 @@ class TranslationCacheManager
     public function save(TranslationData $translation): void
     {
         $key = $translation->getKey($this->storageType);
+
         $item = $this->cache->getItem($key);
 
         switch ($this->storageType->getValue()) {
