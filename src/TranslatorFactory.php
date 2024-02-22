@@ -12,8 +12,6 @@ class TranslatorFactory
     private Client $client;
     private TranslationCacheManager $cacheManager;
 
-    private ?string $localizatorUrl;
-
     public function __construct(?string $clientId = null, ?string $clientSecret = null
     ) {
         if ($clientId) {
@@ -58,16 +56,6 @@ class TranslatorFactory
         return $this;
     }
 
-    /**
-     * @param string|null $localizatorUrl
-     * @return TranslatorFactory
-     */
-    public function setLocalizatorUrl(?string $localizatorUrl): TranslatorFactory
-    {
-        $this->localizatorUrl = $localizatorUrl;
-        return $this;
-    }
-
     public function build(): Translator
     {
         if (!isset($this->client)) {
@@ -78,11 +66,9 @@ class TranslatorFactory
             $this->configureDefaultCacheManager();
         }
 
-        $translator = new Translator(
+        return new Translator(
             $this->client,
             $this->cacheManager
         );
-
-        return $translator;
     }
 }

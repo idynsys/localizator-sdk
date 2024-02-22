@@ -6,7 +6,9 @@ use Exception;
 use GuzzleHttp\ClientInterface;
 use Idynsys\Localizator\DTO\Requests\RequestData;
 use Idynsys\Localizator\Exceptions\ExceptionHandler;
+use Idynsys\Localizator\Exceptions\LocalizerSdkException;
 use JMS\Serializer\SerializerInterface;
+use Throwable;
 
 class Client
 {
@@ -26,6 +28,7 @@ class Client
      * @param RequestData $data
      * @param bool $throwException
      * @return $this
+     * @throws LocalizerSdkException
      */
     public function sendRequestToSystem(RequestData $data, bool $throwException = true): self
     {
@@ -35,7 +38,7 @@ class Client
             $res = $this->client->request($data->getMethod(), $data->getUrl(), $data->getData());
 
             $this->content = $res->getBody()->getContents();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $handler = new ExceptionHandler($exception);
             $this->error = $handler->handle();
         }
@@ -55,7 +58,7 @@ class Client
      */
     public function getResult(?string $key = null): ?array
     {
-        if ($this->hasError() || !isset($this->content)) {
+        if (!isset($this->content) || $this->hasError()) {
             return null;
         }
 

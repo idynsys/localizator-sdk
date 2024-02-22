@@ -2,8 +2,6 @@
 
 namespace Idynsys\Localizator\Client\Request\Catalogs\PostCatalogsItems;
 
-use JMS\Serializer\Annotation as Serializer;
-
 class PostCatalogsItemsRequest
 {
     protected int $applicationId;
