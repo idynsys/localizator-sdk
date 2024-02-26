@@ -2,18 +2,14 @@
 
 namespace Idynsys\Localizator\DTO\Requests\Translations;
 
-use Idynsys\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
 use Idynsys\Localizator\DTO\Requests\RequestData;
-use Idynsys\Localizator\DTO\Requests\Auth\WithAuthorizationToken;
 use Idynsys\Localizator\Enums\RequestMethod;
 
 /**
  * Данные для запроса на получение переводов для статических элементов
  */
-class StaticTranslationsRequestData extends RequestData implements AuthenticationTokenInclude
+class StaticTranslationsRequestData extends RequestData
 {
-    use WithAuthorizationToken;
-
     // Метод запроса
     protected string $requestMethod = RequestMethod::METHOD_GET;
 

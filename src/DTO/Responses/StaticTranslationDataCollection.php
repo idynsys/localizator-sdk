@@ -2,6 +2,7 @@
 
 namespace Idynsys\Localizator\DTO;
 
+use Generator;
 use Idynsys\Localizator\Collections\TranslationCollection;
 
 /**
@@ -58,9 +59,9 @@ class StaticTranslationDataCollection
      *
      * @param string|null $searchProduct
      * @param string|null $searchLanguage
-     * @return \Generator
+     * @return Generator
      */
-    public function translations(?string $searchProduct = null, ?string $searchLanguage = null)
+    public function translations(?string $searchProduct = null, ?string $searchLanguage = null): ?Generator
     {
         foreach ($this->originalTranslations as &$product) {
             if ($searchProduct && $product['product_name'] !== $searchProduct) {

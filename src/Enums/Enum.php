@@ -2,6 +2,8 @@
 
 namespace Idynsys\Localizator\Enums;
 
+use InvalidArgumentException;
+
 class Enum
 {
     protected string $_value;
@@ -10,7 +12,7 @@ class Enum
         $this->_value = $value;
     }
 
-    public function is($key)
+    public function is($key): bool
     {
         return $this->_value === $key;
     }
@@ -23,7 +25,7 @@ class Enum
     public static function __callStatic($name, $params) {
         $value = constant("static::$name");
         if (!$value) {
-            throw new \InvalidArgumentException(static::class . " can't be $name");
+            throw new InvalidArgumentException(static::class . " can't be $name");
         }
         return new static($value);
     }

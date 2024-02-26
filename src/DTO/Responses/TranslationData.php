@@ -67,7 +67,7 @@ abstract class TranslationData
     }
 
     /**
-     * Получение полного пути передода, с учетом языка и типа элемента.
+     * Получение полного пути перевода, с учетом языка и типа элемента.
      *
      * @param string|null $separator
      * @param array|null $location

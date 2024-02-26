@@ -8,6 +8,6 @@ namespace Idynsys\Localizator\Enums;
 
 class TranslationTypes extends Enum
 {
-    const STATIC = 'static';
-    const CATALOG = 'catalog';
+    public const STATIC = 'static';
+    public const CATALOG = 'catalog';
 }

@@ -6,15 +6,11 @@ use GuzzleHttp\Exception\GuzzleException;
 use Idynsys\Localizator\Cache\TranslationCacheManager;
 use Idynsys\Localizator\Cache\CacheStorageTypes;
 use Idynsys\Localizator\Client\Client;
-use Idynsys\Localizator\DTO\Requests\Auth\AuthenticationTokenInclude;
-use Idynsys\Localizator\DTO\Requests\Auth\AuthRequestData;
 use Idynsys\Localizator\DTO\Requests\RequestData;
 use Idynsys\Localizator\DTO\Requests\Translations\StaticTranslationsRequestData;
 use Idynsys\Localizator\DTO\StaticTranslationData;
 use Idynsys\Localizator\DTO\StaticTranslationDataCollection;
-use Idynsys\Localizator\DTO\Responses\TokenData;
 use Idynsys\Localizator\DTO\TranslationData;
-use Idynsys\Localizator\Exceptions\UnauthorizedException;
 use Psr\Cache\InvalidArgumentException;
 
 class Translator
@@ -60,48 +56,6 @@ class Translator
         return $this->cacheManager->get(new StaticTranslationData($product, $language, $location));
     }
 
-
-    /**
-     * Получить токен аутентификации для выполнения запросов к сервису Billing
-     *
-     * @param int $attempt
-     * @return void
-     */
-    private function getTokenForRequest(int $attempt = 0): void
-    {
-        if ($this->token && $attempt === 0) {
-            return;
-        }
-
-        if (++$attempt <= $this->requestAttempts) {
-            $result = $this->getToken($attempt === $this->requestAttempts);
-
-            if (!$result) {
-                $this->getTokenForRequest($attempt);
-            }
-        } else {
-            $result = false;
-        }
-
-        if (!$result) {
-            throw new UnauthorizedException();
-        }
-    }
-
-    /**
-     * Добавить токен в заголовок запроса
-     *
-     * @param RequestData $data
-     * @return void
-     */
-    private function addToken(RequestData $data): void
-    {
-        if ($data instanceof AuthenticationTokenInclude) {
-            $this->getTokenForRequest();
-            $data->setToken($this->token);
-        }
-    }
-
     /**
      *  Отправить запрос в B2B Backoffice
      *
@@ -110,7 +64,6 @@ class Translator
      */
     private function sendRequest(RequestData $data): void
     {
-        $this->addToken($data);
         $this->client->sendRequestToSystem($data);
     }
 
@@ -156,23 +109,5 @@ class Translator
     public function cacheClear(): void
     {
         $this->cacheManager->clear();
-    }
-
-    /**
-     * Получить токен аутентификации в B2B Backoffice
-     *
-     * @param bool $throwException
-     * @return string|null
-     */
-    public function getToken(bool $throwException = true): TokenData
-    {
-        $data = new AuthRequestData();
-
-        $this->client->sendRequestToSystem($data, $throwException);
-
-        $result = $this->client->getResult('data');
-        $this->token = ($result && array_key_exists('data', $result)) ? $result['data'] : '';
-
-        return new TokenData($this->token);
     }
 }
