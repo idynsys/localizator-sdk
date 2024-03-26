@@ -285,3 +285,11 @@ $translator = TranslatorFactory::create($applicationId, 'rus')
 docker-compose run --rm php-cli composer --version
 docker-compose run --rm php-cli composer install
 ```
+
+### Code Style
+### Доступные команды
+- composer cs - проверка код стандарта
+- composer cs-diff - проверка код стандарта в текущей GIT ветке
+- composer cs-fix - автоматическое исправление кода под стандарт
+- composer stan - базовый статический анализ кода всей библиотеки (PHPStan)
+- composer stan-diff - статический анализ обновленного кода в текущей GIT ветке (PHPStan)
