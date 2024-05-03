@@ -3,7 +3,7 @@
 namespace Idynsys\Localizator\Cache;
 
 use DateInterval;
-use Idynsys\Localizator\DTO\TranslationData;
+use Idynsys\Localizator\DTO\Responses\TranslationData;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;

@@ -7,6 +7,7 @@ use GuzzleHttp\ClientInterface;
 use Idynsys\Localizator\DTO\Requests\RequestData;
 use Idynsys\Localizator\Exceptions\ExceptionHandler;
 use Idynsys\Localizator\Exceptions\LocalizerSdkException;
+use Idynsys\Localizator\Exceptions\RequestException;
 use JMS\Serializer\SerializerInterface;
 use Throwable;
 
@@ -17,6 +18,8 @@ class Client
 
     // Exceptions возникший при выполнении запроса
     private ?Exception $error = null;
+
+    private string $content = '';
 
     public function __construct(ClientInterface $client, SerializerInterface $serializer)
     {
@@ -78,7 +81,7 @@ class Client
      */
     public function hasError(): bool
     {
-        return !is_null($this->error);
+        return $this->error !== null;
     }
 
     /**
@@ -92,7 +95,10 @@ class Client
             return null;
         }
 
-        return $this->error->getError();
-    }
+        if ($this->error instanceof RequestException) {
+            return $this->error->getError();
+        }
 
+        return ['error' => $this->error->getMessage()];
+    }
 }

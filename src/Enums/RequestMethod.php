@@ -1,6 +1,7 @@
 <?php
 
 namespace Idynsys\Localizator\Enums;
+
 /**
  * Методы для запросов - Enum
  */
