@@ -1,6 +1,6 @@
 <?php
 
-namespace Idynsys\Localizator\DTO;
+namespace Idynsys\Localizator\DTO\Responses;
 
 use Idynsys\Localizator\Enums\TranslationTypes;
 
@@ -11,8 +11,6 @@ class StaticTranslationData extends TranslationData
 {
     public function __construct(string $product, string $languageCode, array $location = [], string $translation = '')
     {
-        parent::__construct($product, $languageCode, $location, $translation);
-
-        $this->type = TranslationTypes::STATIC();
+        parent::__construct(TranslationTypes::STATIC(), $product, $languageCode, $location, $translation);
     }
 }

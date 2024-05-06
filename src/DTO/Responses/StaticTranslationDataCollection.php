@@ -1,9 +1,10 @@
 <?php
 
-namespace Idynsys\Localizator\DTO;
+namespace Idynsys\Localizator\DTO\Responses;
 
 use Generator;
 use Idynsys\Localizator\Collections\TranslationCollection;
+use Idynsys\Localizator\Enums\TranslationTypes;
 
 /**
  * Коллекция переводов статических элементов, полученная по запросу
@@ -14,7 +15,7 @@ class StaticTranslationDataCollection
     private array $originalTranslations;
 
     // Преобразованные данные в DTO-коллекцию
-    private TranslationCollection $translationData;
+    private ?TranslationCollection $translationData = null;
 
     public function __construct(array $data)
     {
@@ -44,7 +45,7 @@ class StaticTranslationDataCollection
             return $this->filterTranslations($product, $language);
         }
 
-        if (!isset($this->translationData)) {
+        if ($this->translationData === null) {
             $this->translationData = new TranslationCollection();
             foreach ($this->translations() as $translation) {
                 $this->translationData->addItem($translation);
@@ -61,7 +62,7 @@ class StaticTranslationDataCollection
      * @param string|null $searchLanguage
      * @return Generator
      */
-    public function translations(?string $searchProduct = null, ?string $searchLanguage = null): ?Generator
+    public function translations(?string $searchProduct = null, ?string $searchLanguage = null): Generator
     {
         foreach ($this->originalTranslations as &$product) {
             if ($searchProduct && $product['product_name'] !== $searchProduct) {
@@ -101,5 +102,22 @@ class StaticTranslationDataCollection
         }
 
         return $result;
+    }
+
+    public function toArray(): array
+    {
+        $translationArray = [];
+
+        foreach ($this->getTranslations() as $translation) {
+            $translationArray[] = [
+                'productName' => $translation->getProductName(),
+                'language' => $translation->getLanguage(),
+                'parentName' => $translation->getParentName(),
+                'itemName' => $translation->getItemName(),
+                'translation' => $translation->getTranslation()
+            ];
+        }
+
+        return $translationArray;
     }
 }

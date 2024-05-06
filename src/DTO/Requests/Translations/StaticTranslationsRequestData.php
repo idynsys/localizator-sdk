@@ -2,6 +2,7 @@
 
 namespace Idynsys\Localizator\DTO\Requests\Translations;
 
+use Idynsys\Localizator\Config\ConfigContract;
 use Idynsys\Localizator\DTO\Requests\RequestData;
 use Idynsys\Localizator\Enums\RequestMethod;
 
@@ -10,17 +11,13 @@ use Idynsys\Localizator\Enums\RequestMethod;
  */
 class StaticTranslationsRequestData extends RequestData
 {
-    // Метод запроса
-    protected string $requestMethod = RequestMethod::METHOD_GET;
-
-    // URL из конфигурации для выполнения запроса
-    protected string $urlConfigKeyForRequest = 'STATIC_TRANSLATIONS_DATA_URL';
-
     // Код языка для получения переводов
     protected ?string $languageCode;
 
-    public function __construct(?string $languageCode = null)
+    public function __construct(?string $languageCode = null, ?ConfigContract $config = null)
     {
+        parent::__construct(RequestMethod::METHOD_GET, 'STATIC_TRANSLATIONS_DATA_URL', $config);
+
         $this->languageCode = $languageCode;
     }
 

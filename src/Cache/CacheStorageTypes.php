@@ -6,6 +6,8 @@ use Idynsys\Localizator\Enums\Enum;
 
 /**
  * Класс-enum для определения типов группировки переводов в кэш-хранилище
+ *
+ * @method static CacheStorageTypes TRANSLATIONS_STORAGE_TYPE ()
  */
 final class CacheStorageTypes extends Enum
 {

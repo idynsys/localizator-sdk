@@ -1,6 +1,6 @@
 <?php
 
-namespace Idynsys\Localizator\DTO;
+namespace Idynsys\Localizator\DTO\Responses;
 
 use Idynsys\Localizator\Cache\CacheStorageTypes;
 use Idynsys\Localizator\Enums\TranslationTypes;
@@ -30,14 +30,21 @@ abstract class TranslationData
     protected array $location;
 
     // Перевод (текст)
-    protected $translation;
+    protected string $translation;
 
     // пути, для создания ключа кэширования
     protected string $languagePath = '';
     protected string $path = '';
 
-    public function __construct(string $product, string $languageCode, array $location = [], $translation = '', ?string $prefix = null)
-    {
+    public function __construct(
+        TranslationTypes $type,
+        string $product,
+        string $languageCode,
+        array $location = [],
+        string $translation = '',
+        ?string $prefix = null
+    ) {
+        $this->type = $type;
         $this->product = $product;
         $this->languageCode = $languageCode;
         $this->location = $location;
@@ -56,7 +63,7 @@ abstract class TranslationData
      */
     public function getPath(?string $separator = null): string
     {
-        if (empty($this->path) || !is_null($separator)) {
+        if (empty($this->path) || $separator !== null) {
             $this->path = implode(
                 $separator ?: $this->pathSeparator,
                 array_merge([$this->type], $this->location)
@@ -75,8 +82,8 @@ abstract class TranslationData
      */
     private function getLanguagePath(?string $separator = null, ?array $location = null): string
     {
-        if (empty($this->languagePath) || !is_null($separator)) {
-            if (is_null($location)) {
+        if (empty($this->languagePath) || $separator !== null) {
+            if ($location === null) {
                 $location = $this->location ?: [];
             }
 
@@ -137,10 +144,10 @@ abstract class TranslationData
     /**
      * Установить новый перевод для элемента
      *
-     * @param $translation
+     * @param string $translation
      * @return void
      */
-    public function setTranslation($translation): void
+    public function setTranslation(string $translation): void
     {
         $this->translation = $translation;
     }

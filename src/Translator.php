@@ -8,9 +8,9 @@ use Idynsys\Localizator\Cache\CacheStorageTypes;
 use Idynsys\Localizator\Client\Client;
 use Idynsys\Localizator\DTO\Requests\RequestData;
 use Idynsys\Localizator\DTO\Requests\Translations\StaticTranslationsRequestData;
-use Idynsys\Localizator\DTO\StaticTranslationData;
-use Idynsys\Localizator\DTO\StaticTranslationDataCollection;
-use Idynsys\Localizator\DTO\TranslationData;
+use Idynsys\Localizator\DTO\Responses\StaticTranslationData;
+use Idynsys\Localizator\DTO\Responses\StaticTranslationDataCollection;
+use Idynsys\Localizator\DTO\Responses\TranslationData;
 use Psr\Cache\InvalidArgumentException;
 
 class Translator
@@ -18,12 +18,6 @@ class Translator
     private Client $client;
 
     private TranslationCacheManager $cacheManager;
-
-    // Количество попыток для запроса токена аутентификации
-    private int $requestAttempts = 3;
-
-    // Сохраняет токен для выполнения операций по счету
-    private ?string $token = null;
 
     public function __construct(
         Client $client,
@@ -47,11 +41,13 @@ class Translator
     /**
      * Получить перевод(ы) из кэша
      *
+     * @param string $product
      * @param string $language
-     * @param ...$location
+     * @param mixed ...$location
      * @return TranslationData
+     * @throws InvalidArgumentException
      */
-    public function getStaticItemFromCache(string $product, string $language, ...$location): TranslationData
+    public function getStaticItemFromCache(string $product, string $language, mixed ...$location): TranslationData
     {
         return $this->cacheManager->get(new StaticTranslationData($product, $language, $location));
     }
@@ -74,10 +70,15 @@ class Translator
      * @return StaticTranslationDataCollection
      * @throws GuzzleException
      */
-    public function getStaticItems(?string $languageCode = null): StaticTranslationDataCollection
-    {
-        $data = new StaticTranslationsRequestData($languageCode);
-        $this->sendRequest($data);
+    public function getStaticItems(
+        ?string $languageCode = null,
+        ?StaticTranslationsRequestData $requestData = null
+    ): StaticTranslationDataCollection {
+        if ($requestData === null) {
+            $requestData = new StaticTranslationsRequestData($languageCode);
+        }
+
+        $this->sendRequest($requestData);
 
         $result = $this->client->getResult();
 

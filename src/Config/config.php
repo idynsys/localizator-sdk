@@ -16,9 +16,12 @@ return [
     // тестовый хост
     'preprod_host' => 'https://api-gateway.preprod.idynsys.org/api',
 
+    // хост для разработки или динамо тестов
+    'dev_host' => getenv('LOCALIZER_DEV_HOST') ?: 'https://api-gateway.preprod.idynsys.org/api',
+
     // url для получения токена аутентификации
     'AUTH_URL' => '/user-access/token',
 
     // url для получения статических переводов
-    'STATIC_TRANSLATIONS_DATA_URL' => '/localizator/translations/for-application/static'
+    'STATIC_TRANSLATIONS_DATA_URL' => '/translations/for-application/static'
 ];
