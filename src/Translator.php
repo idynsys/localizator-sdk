@@ -6,8 +6,10 @@ use GuzzleHttp\Exception\GuzzleException;
 use Idynsys\Localizator\Cache\TranslationCacheManager;
 use Idynsys\Localizator\Cache\CacheStorageTypes;
 use Idynsys\Localizator\Client\Client;
+use Idynsys\Localizator\DTO\Requests\Languages\ApplicationLanguagesRequestData;
 use Idynsys\Localizator\DTO\Requests\RequestData;
 use Idynsys\Localizator\DTO\Requests\Translations\StaticTranslationsRequestData;
+use Idynsys\Localizator\DTO\Responses\ApplicationLanguagesDataCollection;
 use Idynsys\Localizator\DTO\Responses\StaticTranslationData;
 use Idynsys\Localizator\DTO\Responses\StaticTranslationDataCollection;
 use Idynsys\Localizator\DTO\Responses\TranslationData;
@@ -110,5 +112,19 @@ class Translator
     public function cacheClear(): void
     {
         $this->cacheManager->clear();
+    }
+
+    public function getApplicationLanguages(
+        ?ApplicationLanguagesRequestData $requestData = null
+    ): ApplicationLanguagesDataCollection {
+        if ($requestData === null) {
+            $requestData = new ApplicationLanguagesRequestData();
+        }
+
+        $this->sendRequest($requestData);
+
+        $result = $this->client->getResult();
+
+        return new ApplicationLanguagesDataCollection($result);
     }
 }

@@ -2,6 +2,6 @@
 
 namespace Idynsys\Localizator\Collections;
 
-class TranslationCollection extends Collection
+class ApplicationLanguageCollection extends Collection
 {
 }
