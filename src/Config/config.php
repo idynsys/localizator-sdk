@@ -23,5 +23,8 @@ return [
     'AUTH_URL' => '/user-access/token',
 
     // url для получения статических переводов
-    'STATIC_TRANSLATIONS_DATA_URL' => '/translations/for-application/static'
+    'STATIC_TRANSLATIONS_DATA_URL' => '/translations/for-application/static',
+
+    // url для получения доступных языков приложения
+    'APPLICATION_LANGUAGES_URL' => '/languages/for-application'
 ];
